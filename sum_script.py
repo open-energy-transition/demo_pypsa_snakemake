@@ -1,8 +1,8 @@
 import sys
 
 # Reading file paths from command line arguments
-input_file = sys.argv[0]
-output_file = sys.argv[1]
+input_file = snakemake.input[0]
+output_file = snakemake.output[0]
 
 # Reading numbers and calculating sum
 with open(input_file, 'r') as file:
