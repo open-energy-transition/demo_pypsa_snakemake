@@ -7,16 +7,24 @@ writes the result to result folder
 using bind mounts we can use our host filesystem to provide config and get results 
 this conatiner will spin up and die only results which are bindmounted will survive 
 
-# How To Use
+# USE LOCALLY
+ - create env using env.yaml
+ - then activate it
+   `snakemake --cores 1 calculate_sum`
+   `snakemake --cores 1 prepare_networks`
+   `snakemake --cores 1 solve_networks`
+ to remove folder and run again
+ - `sudo rm -r results/`
+ - `sudo rm -r prepared_networks/`
+
+# How To Use With Docker
 
 if you have docker installed 
 
-- docker build -t demo-pypsa .
-- docker run --name democontainer -v "$(pwd)"/input:/input -v "$(pwd)"/results:/results --rm demo_pypsa
+- `docker build -t demo-pypsa .`
+- `docker run --name democontainer -v "$(pwd)"/input:/input -v "$(pwd)"/results:/results --rm demo_pypsa`
 
-to remove folder and run again
-
-- sudo rm -r results/
+this will create a docker container run `snakemake --cores 1 calculate_sum`  and remove it after writing result files.
 
 # CLOUD SOLVE
 
@@ -34,3 +42,4 @@ this command will
  - we downloads results
  - delete the VM 
 
+## working to solve prepare_networks and solved_network (muiltiple docker container spin up) on gcp like `snakemake --cores 1 calculate_sum` is getting excuted on cloud
