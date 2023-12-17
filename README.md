@@ -10,9 +10,9 @@ this conatiner will spin up and die only results which are bindmounted will surv
 # USE LOCALLY
  - create env using env.yaml
  - then activate it
-   `snakemake --cores 1 calculate_sum`
-   `snakemake --cores 1 prepare_networks`
-   `snakemake --cores 1 solve_networks`
+   - `snakemake --cores 1 calculate_sum`
+   - `snakemake --cores 1 prepare_networks`
+   - `snakemake --cores 1 solve_networks`
  to remove folder and run again
  - `sudo rm -r results/`
  - `sudo rm -r prepared_networks/`
