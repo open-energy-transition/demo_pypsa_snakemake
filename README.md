@@ -17,3 +17,20 @@ if you have docker installed
 to remove folder and run again
 
 - sudo rm -r results/
+
+# CLOUD SOLVE
+
+## gcloud setup is needed
+
+- `bash runner.sh`
+
+this command will 
+ - create a VM
+ - install docker on it
+ - we git clones our repo (any version is possible)
+ - build our docker image from downloaded repo
+ - copy our input.txt from local machine to VM
+ - runs a container uses our input then solves it and writes result/network.txt
+ - we downloads results
+ - delete the VM 
+
