@@ -4,7 +4,7 @@ rule calculate_sum:
     output:
         "results/network.txt"
     script:
-        "sum_script.py"
+        "scripts/sum_script.py"
 
 
 rule prepare_networks:
@@ -13,7 +13,7 @@ rule prepare_networks:
     output:
         directory("prepared_networks/")
     script:
-        "prepare_network.py"
+        "scripts/prepare_network.py"
 
 rule solve_networks:
     input:
@@ -21,7 +21,7 @@ rule solve_networks:
     output:
         directory("solved_networks/")
     script:
-        "solve_network.py"
+        "scripts/solve_network.py"
 
 
 
