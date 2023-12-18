@@ -34,7 +34,7 @@ gcloud compute ssh labrat \
     --command='sudo docker images'  \
     --zone=us-west4-b 
 
-# we are copying aour config and getting results by binding directories for ~/ip/ in vm rather then ~/demo_pypsa_snakemake/ip/ because gcp dosent allow us to overwrite files and docker is also getting executed at ~/ rather then ~/demo_p_s as we do locally
+
 # ~/ls = demo_pypsa_snakemake  input  results
 
 
@@ -43,6 +43,9 @@ gcloud compute scp --recurse "$(pwd)"/input/ labrat:~/input/ --zone=us-west4-b
 gcloud compute ssh labrat \
     --command='sudo docker run -v ~/input/option.txt:/input/option.txt -v ~/results:/results demo-pypsa'  \
     --zone=us-west4-b 
+
+#  this dosen't work because currently snakemake considers empty dir to be input and output not files in dir
+# sudo docker run -it -v ~/prepared_networks:/prepared_networks --entrypoint /bin/bash demo-pypsa -c "snakemake --cores 1 prepare_networks"
 
 gcloud compute scp --recurse labrat:~/results/ \
     "$(pwd)"/results/ \

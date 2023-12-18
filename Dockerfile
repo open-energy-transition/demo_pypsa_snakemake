@@ -17,12 +17,8 @@ ENTRYPOINT [ "snakemake","--cores","1","calculate_sum" ]
 
 # docker run --name democontainer -v "$(pwd)"/input:/input -v "$(pwd)"/results:/results 
 
-# --rm demo-pypsa
-
 # sudo docker run -it --entrypoint /bin/bash demo-pypsa
 
-# docker run --name democon -v "$(pwd)"/demo_pypsa_snakemake/input:/input -v "$(pwd)"/demo_pypsa_snakemake/results:/results --rm demo-pypsa
-
-# gcloud compute scp --recurse labrat:~/demo_pypsa_snakemake/results  "$(pwd)"   --zone=us-west4-b
+# sudo docker run -it -v ~/prepared_networks:/prepared_networks --entrypoint /bin/bash demo-pypsa -c "snakemake --cores 1 prepare_networks"
 
 # sudo rm -r results/
