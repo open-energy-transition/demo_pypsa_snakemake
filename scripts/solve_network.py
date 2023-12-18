@@ -19,7 +19,7 @@ for filename in os.listdir(first_directory):
             continue
 
     # Create a path for the new file in the second directory
-    new_file_path = os.path.join(second_directory, "solve"+filename)
+    new_file_path = os.path.join(second_directory, "solved"+filename)
 
     # Write the squared number to the new file
     with open(new_file_path, 'w') as new_file:
