@@ -1,12 +1,18 @@
 import os
 
-first_directory = snakemake.input[0]
-second_directory = snakemake.output[0]
+first_file = snakemake.input[0]
+second_file = snakemake.output[0]
+
+first_directory = os.path.dirname(first_file)
+second_directory = os.path.dirname(second_file)
 
 if not os.path.exists(second_directory):
     os.makedirs(second_directory)
 
 for filename in os.listdir(first_directory):
+    if filename == "done.txt":
+        continue
+    
     file_path = os.path.join(first_directory, filename)
 
     # Read the number from the file
@@ -25,3 +31,5 @@ for filename in os.listdir(first_directory):
     with open(new_file_path, 'w') as new_file:
         new_file.write(str(squared_number))
 
+with open(second_file,'w') as done_file:
+    done_file.write("done")
