@@ -1,4 +1,16 @@
 
+INPUT_FILE=$1
+OUTPUT_FILE=$2
+RULE_NAME=$3
+
+INPUT_DIR_NAME=$(dirname "$INPUT_FILE")
+OUTPUT_DIR_NAME=$(dirname "$OUTPUT_FILE")
+
+echo "input dir: $INPUT_DIR_NAME"
+echo "output dir: $OUTPUT_DIR_NAME"
+echo "rule name: $RULE_NAME"
+
+echo creating your VM....
 gcloud compute instances create labrat \
     --project=stately-forest-407206 \
     --zone=us-west4-b \
@@ -35,20 +47,21 @@ gcloud compute ssh labrat \
     --zone=us-west4-b 
 
 
-# ~/ls = demo_pypsa_snakemake  input  results
+# ~/ls = demo_pypsa_snakemake  input  results prepared_networks
 
+gcloud compute scp --recurse "$(pwd)"/$INPUT_DIR_NAME/ labrat:~/$INPUT_DIR_NAME/ --zone=us-west4-b
 
-gcloud compute scp --recurse "$(pwd)"/input/ labrat:~/input/ --zone=us-west4-b
+SNAKEMAKE_COMMAND="snakemake --cores 1 $RULE_NAME"
+DOCKER_COMMAND="sudo docker run -v ~/$INPUT_DIR_NAME/:/$INPUT_DIR_NAME/ -v ~/$OUTPUT_DIR_NAME:/$OUTPUT_DIR_NAME --entrypoint /bin/bash demo-pypsa -c '$SNAKEMAKE_COMMAND'"
 
 gcloud compute ssh labrat \
-    --command='sudo docker run -v ~/input/option.txt:/input/option.txt -v ~/results:/results demo-pypsa'  \
+    --command="$DOCKER_COMMAND"  \
     --zone=us-west4-b 
 
-#  this dosen't work because currently snakemake considers empty dir to be input and output not files in dir
-# sudo docker run -it -v ~/prepared_networks:/prepared_networks --entrypoint /bin/bash demo-pypsa -c "snakemake --cores 1 prepare_networks"
-
-gcloud compute scp --recurse labrat:~/results/ \
-    "$(pwd)"/results/ \
+gcloud compute scp --recurse labrat:~/$OUTPUT_DIR_NAME/ \
+    "$(pwd)"/ \
     --zone=us-west4-b
 
+
+echo deleting VM this will take a while.....
 gcloud compute instances delete labrat --zone=us-west4-b --quiet
