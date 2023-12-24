@@ -6,15 +6,40 @@ metadata:
   annotations:
     gke-gcsfuse/volumes: "true"
 spec:
-  containers:
-  - image: akshatmittaloet/demo-pypsa:cal
-    name: cal-img
-    volumeMounts:
-    - name: gcs-fuse-csi-static
-      mountPath: /input
-      readOnly: false
   serviceAccountName: bucket-account
+  restartPolicy: Never
+  containers:
+    - name: cal-img
+      image: akshatmittaloet/demo-pypsa:cal
+    # volumeMounts:
+    # - name: gcs-fuse-csi-static
+    #   mountPath: /input
+    #   readOnly: false
+    # - name: gcs-fuse-csi-out
+    #   mountPath: /results
+    #   readOnly: false
+      volumeMounts:
+        - name: gcs-fuse-csi-inline-1
+          mountPath: "/input"
+        - name: gcs-fuse-csi-inline-2
+          mountPath: "/results"
+  # volumes:
+  # - name: gcs-fuse-csi-static
+  #   persistentVolumeClaim:
+  #     claimName: gcs-fuse-csi-static-pvc
+  # - name: gcs-fuse-csi-out
+  #   persistentVolumeClaim:
+  #     claimName: gcs-fuse-csi-static-pvc-out
   volumes:
-  - name: gcs-fuse-csi-static
-    persistentVolumeClaim:
-      claimName: gcs-fuse-csi-static-pvc
+  - name: gcs-fuse-csi-inline-1
+    csi:
+      driver: gcsfuse.csi.storage.gke.io
+      volumeAttributes:
+        bucketName: cal-cluster-input
+        mountOptions: "debug_fuse,debug_fs,debug_gcs,implicit-dirs,only-dir=input"
+  - name: gcs-fuse-csi-inline-2
+    csi:
+      driver: gcsfuse.csi.storage.gke.io
+      volumeAttributes:
+        bucketName: cal-cluster-input
+        mountOptions: "debug_fuse,debug_fs,debug_gcs,implicit-dirs,only-dir=results"

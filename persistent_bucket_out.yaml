@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: gcs-fuse-csi-pv
+  name: gcs-fuse-csi-pv-out
 spec:
   accessModes:
   - ReadWriteMany
@@ -10,10 +10,10 @@ spec:
   storageClassName: example-storage-class
   claimRef:
     namespace: bucket-fuse
-    name: gcs-fuse-csi-static-pvc
+    name: gcs-fuse-csi-static-pvc-out
   mountOptions:
     - implicit-dirs
-    - only-dir= input/
+    - only-dir= results/
   csi:
     driver: gcsfuse.csi.storage.gke.io
     volumeHandle: cal-cluster-input

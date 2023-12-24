@@ -8,6 +8,6 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 5Gi
+      storage: 1Gi
   volumeName: gcs-fuse-csi-pv
   storageClassName: example-storage-class
