@@ -11,7 +11,7 @@ RUN conda env create -f env.yaml
 RUN echo "source activate demo-pypsa" > ~/.bashrc
 ENV PATH /opt/conda/envs/demo-pypsa/bin:$PATH
 
-ENTRYPOINT [ "snakemake","--cores","1","calculate_sum" ]
+ENTRYPOINT [ "snakemake","--cores","1","solve_networks" ]
 
 # docker build -t demo-pypsa .
 

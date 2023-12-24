@@ -20,7 +20,9 @@ gcloud compute instances create labrat \
     --image-family=debian-10 \
     --metadata=enable-guest-attributes=TRUE \
     --metadata-from-file=startup-script=vm_config.sh
-
+    #  --container-image=akshatmittaloet/demo-pypsa \
+    # --container-restart-policy=always \
+    # https://cloud.google.com/compute/docs/containers/configuring-options-to-run-containers
 
 until gcloud compute instances get-guest-attributes labrat \
     --zone=us-west4-b \
@@ -65,3 +67,17 @@ gcloud compute scp --recurse labrat:~/$OUTPUT_DIR_NAME/ \
 
 echo deleting VM this will take a while.....
 gcloud compute instances delete labrat --zone=us-west4-b --quiet
+
+####### VM ########
+
+# this solution can be improved by directly uploading the files to bucket
+# using prebuilt image or use docker to pull the image 
+
+####### k8 ##########
+
+# in k8 solution we will upload data directly to buckets 
+# then use buckets as persistent volume claims
+# https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver
+# write a k8 file that creates a container each for prepared_networks
+# create different images for prepare network and solve network
+# maybe make a persistent disk that attaches to the prepare network pod that have the data we download from sendo already attached.

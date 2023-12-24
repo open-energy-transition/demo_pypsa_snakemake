@@ -1,5 +1,9 @@
+# from snakemake.remote.GS import RemoteProvider as GSRemoteProvider
+# GS = GSRemoteProvider()
+
 rule calculate_sum:
     input: "input/option.txt"
+    # input: GS.remote("remotesnake/options.txt")
     output:
         "results/network.txt"
     script:
