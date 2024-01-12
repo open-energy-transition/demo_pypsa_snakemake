@@ -2,3 +2,5 @@
 /prepared_networks
 /solved_networks
 .snakemake
+key.json
+/pre-k8-jobs

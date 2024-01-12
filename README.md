@@ -42,4 +42,16 @@ this command will
  - we downloads results
  - delete the VM 
 
-## working to solve prepare_networks and solved_network (muiltiple docker container spin up) on gcp like `snakemake --cores 1 calculate_sum` is getting excuted on cloud
+# this solution can be improved by directly uploading the files to bucket
+# using prebuilt image or use docker to pull the image 
+
+####### k8 ##########
+
+in k8 solution we will upload data directly to buckets.
+then use buckets as persistent volume claims
+https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver
+
+write a k8 file that creates a container each for prepared_networks
+create different images for prepare network and solve network
+
+maybe make a persistent disk that attaches to the prepare network pod that have the data we download from zendo already attached.
