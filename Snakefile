@@ -21,6 +21,8 @@ rule solve_networks:
     script:
         "scripts/solve_network.py"
 
+####################
+
 rule calculate_sum_cloud:
     input:
         "input/option.txt"
@@ -37,3 +39,12 @@ rule solve_networks_cloud:
     input: "prepared_networks/done.txt"
     output: "solved_networks/done.txt"
     shell: "bash vm_stuff/runner.sh {input} {output} solve_networks"
+
+#################################
+
+rule calculate_sum_job:
+    input:
+        "input/option.txt"
+    output:
+        "results/network.txt"
+    script: "kubernetes/job-executer.py"

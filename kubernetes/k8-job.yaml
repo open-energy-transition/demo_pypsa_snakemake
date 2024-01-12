@@ -23,19 +23,21 @@ spec:
           image: akshatmittaloet/demo-pypsa:cal
           volumeMounts:
             - name: gcs-fuse-csi-inline-1
-              mountPath: "/input"
+              mountPath: "/network_config"
             - name: gcs-fuse-csi-inline-2
-              mountPath: "/results"
+              mountPath: "/prepared_networks"
+          command: ["/bin/bash"]
+          args: ["-c","snakemake --cores 1 prepare_networks"]
       volumes:
       - name: gcs-fuse-csi-inline-1
         csi:
           driver: gcsfuse.csi.storage.gke.io
           volumeAttributes:
             bucketName: cal-cluster-input
-            mountOptions: "debug_fuse,debug_fs,debug_gcs,implicit-dirs,only-dir=input"
+            mountOptions: "debug_fuse,debug_fs,debug_gcs,implicit-dirs,only-dir=network_config"
       - name: gcs-fuse-csi-inline-2
         csi:
           driver: gcsfuse.csi.storage.gke.io
           volumeAttributes:
             bucketName: cal-cluster-input
-            mountOptions: "debug_fuse,debug_fs,debug_gcs,implicit-dirs,only-dir=results"
+            mountOptions: "debug_fuse,debug_fs,debug_gcs,implicit-dirs,only-dir=prepared_networks"
