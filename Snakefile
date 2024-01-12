@@ -31,9 +31,9 @@ rule calculate_sum_cloud:
 rule prepare_networks_cloud:
     input: "network_config/config.txt"
     output: "prepared_networks/done.txt"
-    shell: "bash runner.sh {input} {output} prepare_networks"
+    shell: "bash vm_stuff/runner.sh {input} {output} prepare_networks"
 
 rule solve_networks_cloud:
     input: "prepared_networks/done.txt"
     output: "solved_networks/done.txt"
-    shell: "bash runner.sh {input} {output} solve_networks"
+    shell: "bash vm_stuff/runner.sh {input} {output} solve_networks"

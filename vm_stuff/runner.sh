@@ -19,7 +19,7 @@ gcloud compute instances create labrat \
     --image-project=debian-cloud \
     --image-family=debian-10 \
     --metadata=enable-guest-attributes=TRUE \
-    --metadata-from-file=startup-script=vm_config.sh
+    --metadata-from-file=startup-script=vm_stuff/boot.sh
     #  --container-image=akshatmittaloet/demo-pypsa \
     # --container-restart-policy=always \
     # https://cloud.google.com/compute/docs/containers/configuring-options-to-run-containers
