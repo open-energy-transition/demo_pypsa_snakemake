@@ -10,7 +10,17 @@ from kubernetes.stream import stream
 import subprocess
 import os
 
-bucket_name='cal-cluster-input'
+bucket_name='four-fuse-bucket'
+
+def get_dir_name(full_path):
+    return os.path.dirname(full_path)
+
+def extract_job_names(job_list):
+    return job_list.split("_job")[0] 
+
+print(get_dir_name(input_dir))
+print(get_dir_name(output_dir))
+print(extract_job_names(rule))
 
 script_path = '/home/akshat/demo_pypsa_snakemake/kubernetes/upload.sh'
 
@@ -56,12 +66,36 @@ def get_pod_status(pod):
         print(f"Container Name: {container_status.name}")
         print(f" State: {container_status.state}")            
         
-    print("\n")
     
 with open(yaml_file, 'r') as file:
     yaml_content = yaml.safe_load(file)
 
 try:
+    
+    print(yaml_content)
+    
+    yaml_content['spec']['template']['spec']['containers'][0]['args'] = ["-c", f"snakemake --cores 1 {extract_job_names(rule)}"]
+
+    for volume_mount in yaml_content['spec']['template']['spec']['containers'][0]['volumeMounts']:
+        if volume_mount['name'] == "gcs-fuse-csi-inline-1":
+            volume_mount['mountPath'] = f"/{get_dir_name(input_dir)}"
+        
+        if volume_mount['name'] == "gcs-fuse-csi-inline-2":
+            volume_mount['mountPath'] = f"/{get_dir_name(output_dir)}"
+        
+
+    for volume in yaml_content['spec']['template']['spec']['volumes']:
+        
+        volume['csi']['volumeAttributes']['bucketName']=bucket_name
+        
+        if volume['name'] == "gcs-fuse-csi-inline-1":
+            volume['csi']['volumeAttributes']['mountOptions'] = f"debug_fuse,debug_fs,debug_gcs,implicit-dirs,only-dir={get_dir_name(input_dir)}"
+        if volume['name'] == "gcs-fuse-csi-inline-2":
+            volume['csi']['volumeAttributes']['mountOptions'] = f"debug_fuse,debug_fs,debug_gcs,implicit-dirs,only-dir={get_dir_name(output_dir)}"
+        
+    print('\n')
+    print(yaml_content)
+
     utils.create_from_dict(k8s_client, yaml_content)
     job_name = yaml_content['metadata']['name']
     namespace = yaml_content.get('metadata', {}).get('namespace', 'default')
@@ -78,7 +112,7 @@ try:
 except kubernetes.client.exceptions.ApiException as e:
     print(f"An error occurred: {e}")
 
-###########################333
+##############################
 
 script_path = '/home/akshat/demo_pypsa_snakemake/kubernetes/download.sh'
 

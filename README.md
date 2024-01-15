@@ -28,6 +28,13 @@ this will create a docker container run `snakemake --cores 1 calculate_sum`  and
 
 # CLOUD SOLVE
 
+
+- turn on cloud rule from snakefile 
+- or use job rules to solve on cluster
+- locally solve prepare networks then `bash parallel-jobs.sh`
+to solve mmultiple jobs on cluster
+
+
 ## gcloud setup is needed
 
 - `bash runner.sh`
@@ -45,7 +52,7 @@ this command will
 # this solution can be improved by directly uploading the files to bucket
 # using prebuilt image or use docker to pull the image 
 
-####### k8 ##########
+## k8
 
 in k8 solution we will upload data directly to buckets.
 then use buckets as persistent volume claims

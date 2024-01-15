@@ -7,4 +7,6 @@ echo "output dir: $OUTPUT_DIR_NAME"
 
 echo downloading results from $BUCKET_NAME
 
+sleep 10
+
 gcloud storage cp --recursive gs://$BUCKET_NAME/$OUTPUT_DIR_NAME/ "$(pwd)"/
