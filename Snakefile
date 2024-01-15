@@ -6,6 +6,8 @@ rule calculate_sum:
     # input: GS.remote("remotesnake/options.txt")
     output:
         "results/network.txt"
+    conda:
+        "env-temp-snakemake.yaml"
     script:
         "scripts/sum_script.py"
 
