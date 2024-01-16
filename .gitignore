@@ -4,3 +4,5 @@
 .snakemake
 key.json
 /pre-k8-jobs
+/env-out
+snakemake-workflow*
