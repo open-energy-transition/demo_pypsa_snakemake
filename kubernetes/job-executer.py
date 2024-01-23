@@ -105,7 +105,8 @@ try:
     while not finished:
         finished=get_job_status(job_name,namespace)
         pods=get_pods_for_job(job_name,namespace)
-        if pods:
+        print(pods)
+        if pods and len(pods) > 0:
             container_status=get_pod_status(pods[0])
         time.sleep(3)
         

@@ -1,5 +1,6 @@
 import arrow
 import phonenumbers
+import time
 
 output_file = snakemake.output[0]
 
@@ -13,8 +14,14 @@ def main():
     parsed_phone = phonenumbers.parse(sample_phone)
     formatted_phone = phonenumbers.format_number(parsed_phone, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
     print(f"Formatted Phone Number: {formatted_phone}")
+    
+    for _ in range(100):
+        print("doing")
+        time.sleep(1)
+        
     with open(output_file, 'w') as file:
         file.write(str(formatted_phone))
         file.write(f"Current Time: {current_time.format('YYYY-MM-DD HH:mm:ss')}")
+
         
 main()
