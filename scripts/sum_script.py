@@ -1,6 +1,12 @@
 import sys
 import subprocess
 import os
+import snakemake
+import debugpy
+# debugpy.listen(("localhost", 5678))
+
+# debugpy.wait_for_client() 
+# debugpy.breakpoint()
 
 input_file = snakemake.input[0]
 output_file = snakemake.output[0]
@@ -11,12 +17,11 @@ total = sum(numbers)
 
 with open(output_file, 'w') as file:
     file.write(str(total))
-    
-# for _ in range(100):
-#         print("doing")
-#         time.sleep(1)
 
-subprocess.run(["echo","bbbcjebc"])
+
+# breakpoint()
+
+subprocess.run(["echo","see in logs"])
 subprocess.run(["ls"])
 subprocess.run(["pwd"])
 
