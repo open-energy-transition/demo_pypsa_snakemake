@@ -1,7 +1,7 @@
 import sys
 import subprocess
 import os
-import snakemake
+# import snakemake
 # import debugpy
 # debugpy.listen(("localhost", 5678))
 
