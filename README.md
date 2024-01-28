@@ -19,7 +19,7 @@ this conatiner will spin up and die only results which are bindmounted will surv
 
 # How To Use With Docker
 
-if you have docker installed 
+if you have docker installed
 
 - `docker build -t demo-pypsa .`
 - `docker run --name democontainer -v "$(pwd)"/input:/input -v "$(pwd)"/results:/results --rm demo_pypsa`
@@ -28,18 +28,16 @@ this will create a docker container run `snakemake --cores 1 calculate_sum`  and
 
 # CLOUD SOLVE
 
-
-- turn on cloud rule from snakefile 
+- turn on cloud rule from snakefile
 - or use job rules to solve on cluster
 - locally solve prepare networks then `bash parallel-jobs.sh`
 to solve mmultiple jobs on cluster
-
 
 ## gcloud setup is needed
 
 - `bash runner.sh`
 
-this command will 
+this command will
  - create a VM
  - install docker on it
  - we git clones our repo (any version is possible)
