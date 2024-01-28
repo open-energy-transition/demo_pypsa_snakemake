@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // {
+    //   "name": "Python Debugger: Module",
+    //   "type": "debugpy",
+    //   //   "python.pythonPath": "/home/akshat/anaconda3/envs/demo_snakemake/bin/python",
+    //   "request": "launch",
+    //   "module": "snakemake",
+    //   "args": ["--cores", "1", "calculate_sum"],
+    //   //   "console": "externalTerminal",
+    //   "console": "integratedTerminal",
+    //   "subProcess": true,
+    //   "stopOnEntry": false,
+    //   "justMyCode": false,
+    //   "purpose": ["debug-test"]
+    // },
+    {
+      "name": "Python: Remote Attach",
+      "type": "python",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      },
+      "justMyCode": false
+
+      //   "pathMappings": [
+      //     {
+      //       "localRoot": "${workspaceFolder}",
+      //       "remoteRoot": "."
+      //     }
+      //   ]
+    }
+  ]
+}

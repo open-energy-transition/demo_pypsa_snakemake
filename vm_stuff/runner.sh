@@ -1,10 +1,7 @@
-
-INPUT_FILE=$1
-OUTPUT_FILE=$2
+INPUT_DIR_NAME=$1
+OUTPUT_DIR_NAME=$2
 RULE_NAME=$3
 
-INPUT_DIR_NAME=$(dirname "$INPUT_FILE")
-OUTPUT_DIR_NAME=$(dirname "$OUTPUT_FILE")
 
 echo "input dir: $INPUT_DIR_NAME"
 echo "output dir: $OUTPUT_DIR_NAME"
