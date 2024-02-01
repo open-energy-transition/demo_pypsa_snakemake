@@ -57,6 +57,7 @@
 
 - Successful Execution (without Conda):
 - `snakemake --jobs 1 calculate_sum --executor googlebatch --googlebatch-project crucial-oven-386720 --googlebatch-region us-central1 --default-storage-provider gcs --default-storage-prefix gcs://temp-log-snake-oet --storage-gcs-project crucial-oven-386720`
+- **Execution Outcome:** ![Successful Execution](img/batch-sucess.png)
   
 - Unsuccessful Execution (with Conda):
 - `snakemake --use-conda --jobs 1 try_conda --executor googlebatch --googlebatch-project crucial-oven-386720 --googlebatch-region us-central1 --default-storage-provider gcs --default-storage-prefix gcs://temp-log-snake-oet --storage-gcs-project crucial-oven-386720`
