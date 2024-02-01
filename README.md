@@ -2,6 +2,8 @@
 
 This guide provides instructions on how to use the project locally, with Docker, on a VM, and in Kubernetes.
 
+here is a solution using our own solution to execute on cloud then from conda environment use snakemake to execute the rule.
+
 ## Use Locally
 
 To run the project locally:
