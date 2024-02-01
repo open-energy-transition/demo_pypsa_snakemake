@@ -1,115 +1,63 @@
+# Using Snakemake as a Kubernetes Executor
 
-# Introduction
+- Based on these test we have to determine if snakemake satisfies our usecase as a cloud orchestration tool .
+- Note: Snakemake has an [open issue](https://github.com/snakemake/snakemake/issues/1801) regarding Gurobi licenses.
+- what are we building so we can decide which approch to take???
 
-This project is conceived as a testbed for cloud strategy, which will later be used in PyPSA models. Due to the large image size of PyPSA, along with substantial data download times, we are using this to develop a cloud solution that fits PyPSA.
+## Background
 
-# USE LOCALLY
+### Snakemake Version History
 
-- create env using env.yaml
-- then activate it
-  - `snakemake --cores 1 calculate_sum`
-  - `snakemake --cores 1 prepare_networks`
-  - `snakemake --cores 1 solve_networks`
-- to remove folder and run again
-  - `sudo rm -r results/`
-  - `sudo rm -r prepared_networks/`
+- **Version 7.32.3:** Snakemake operated as a monorepo, combining orchestration and Kubernetes execution within a single repository.
+  - Documentation: [Snakemake 7.32.3](https://snakemake.readthedocs.io/en/v7.32.3/index.html)
 
-# How To Use With Docker
+- **Latest Version:** Introduction of a plugin system, separating Kubernetes, Google Batch, and other functionalities into distinct repositories.
+  - Documentation: [Latest Snakemake Docs](https://snakemake.readthedocs.io/en/stable/)
+  - Plugin Catalog: [Snakemake Plugin Catalog](https://snakemake.github.io/snakemake-plugin-catalog/index.html)
 
-if you have docker installed
+## Evaluating Snakemake for Cloud Execution
 
-- `docker build -t demo-pypsa .`
+### Upsides
 
-- `docker run --name democontainer -v "$(pwd)"/input:/input -v "$(pwd)"/results:/results --rm demo_pypsa`
+- Existing developers can execute rules in the cloud by adding tags to commands without additional code.
+- The Kubernetes package in Snakemake reuses some executor code, enhancing familiarity.
 
-this will create a docker container run `snakemake --cores 1 calculate_sum`  and remove it after writing result files using bindmounts.
+### Downsides
 
-- `sudo docker run -it --entrypoint /bin/bash demo-pypsa`
+- Persistent Volume Claims are under development. See [PR#9](https://github.com/snakemake/snakemake-executor-plugin-kubernetes/pull/9).
+- Limited control over pods and jobs executed on the cluster.
+- High development time due to sparse documentation.
 
-it will start a container of this image with conda activated in it.
+## Version Comparisons
 
-if you want to use you image later in kubernetes section tag and push it to docker registry and modify the yaml file in kubernetes folder and solve-tmpl in root folder.
+### Snakemake 7.32.3
 
-# gcloud setup is needed to further run this project
+- **Execution Status:** ✅ Successful
+- **Guide:** [Snakemake on Azure AKS](https://snakemake.readthedocs.io/en/v7.32.3/executor_tutorial/azure_aks.html)
+- **Steps:**
+  1. Create a service account with permissions specified in the guide.
+  2. Download the service account key and add it to the root folder as `key.json`.
+  3. Create a bucket and upload the input folder.
+  4. Execute the command:
+     ``
+     snakemake --kubernetes --default-remote-prefix bucket-name --default-remote-provider GS -j 1 calculate_sum
+     ``
+  5. Results are stored in the specified bucket.
+- **Execution Outcome:** ![Successful Execution](img/k8-s7-sucess.png)
 
-# VM
+### Snakemake 8.4.1
 
-- `bash vm_stuff/runner.sh input-dir output-dir rule-name`
-- `bash vm_stuff/runner.sh network_config prepared_networks prepare_networks`
+#### Kubernetes Execution
 
-this command will
+- Command: `snakemake --executor kubernetes --default-storage-provider gcs --default-storage-prefix gcs://bucket-name -j 1 calculate_sum --storage-gcs-project stately-forest-407206 --kubernetes-namespace bucket-fuse`
+- Issue: Error stating "Has the pod been deleted manually."
+- Execution Status: ![Error](img/k8-latest-error.png)
 
-- create a VM
-- install docker on it
-- we git clones our repo (any version is possible)
-- build our docker image from downloaded repo
-- copy our input.txt from local machine to VM
-- runs a container uses our input then solves it and writes result/network.txt
-- we downloads results
-- delete the VM
+#### Google Batch Execution
 
-- we can also use our images directly.
-- we can run or test multiple images easily using docker which will streamline development.
-
-# Kubernetes
-
-- to run this we have setup a cluster following these instructions[https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver]
-- or get access to our cluster
-- configure kubectl to use GCP cluster
-
-- in k8 solution we will upload data directly to buckets,then use buckets as persistent volume claims.
-
-- `bash kubernetes/executer.sh input-dir output-dir rule-name bucket-name`
-
-- `bash kubernetes/executer.sh network_config prepared_networks prepare_networks different-name-two`
-
-- executor.sh will create a bucket and then upload the input.
-- We use the job-executer.py file to read k8-job-template.yaml, which describes a job.
-- We override the rule for input and output directories, which will be bind-mounted.
-- We send it to solve while we can follow the logs.
-- Once solved, it will download the results.
-
-## Multiple Jobs
-
-- Once you have run the `prepare_network` rule, you should have a number of files in the `prepared_networks` directory.
-- Execute `bash parallel-jobs.sh`.
-- This script will create a folder named `pre-k8-jobs`.
-- We create multiple YAML files in `pre-k8-jobs` from `k8-solve-job-tmpl` located in the root directory.
-- We apply all of these files to create multiple jobs in Kubernetes in parallel.
-- Use `kubectl get jobs` to view all the jobs.
-- Use `kubectl get pods` to see the status of pods running.
-
-# Kubernetes and Snakemake
-
-## older version
-
-- This example [Snakemake on Azure AKS](https://snakemake.readthedocs.io/en/v7.32.3/executor_tutorial/azure_aks.html) works fine on Kubernetes with an older version of Snakemake (< 8.0).
-- However, I couldn't figure out how to pass environment variables to Snakemake, which in turn gets passed to the pod in the cluster.
-- These environment variables allow the pod to write the results of running the rule to the bucket.
-- I am manually passing the environment variable `GOOGLE_CLOUD_CREDENTIALS` in `sum_script.py` of the `calculate_sum` rule.
-- You will need to make a service account with permissions specified [here](https://snakemake.readthedocs.io/en/v7.32.3/executor_tutorial/azure_aks.html).
-- Once you have granted permissions, download the service account key and add it to the root folder as `key.json`.
-- Create a bucket and upload the input file to it.
-- Use the command `snakemake --kubernetes bucket-fuse --k8s-service-account-name bucket-account --default-remote-prefix bucket-name --default-remote-provider GS -j 1 calculate_sum`.
-- This should get you the results in the bucket.
-- ![Logo](/k8-s7-sucess.png)
-
-## new version
-
-- not runing sucessfully
-- latest command looks like this
-- `snakemake --executor kubernetes --default-storage-provider gcs --default-storage-prefix  gcs://bucket-name -j 1 calculate_sum --storage-gcs-project stately-forest-407206 --kubernetes-namespace bucket-fuse`
-- results in error Has the pod been delete manually.
-- ![Logo](/k8-latest-error.png)
+- Successful Execution (without Conda):
+- `snakemake --jobs 1 calculate_sum --executor googlebatch --googlebatch-project crucial-oven-386720 --googlebatch-region us-central1 --default-storage-provider gcs --default-storage-prefix gcs://temp-log-snake-oet --storage-gcs-project crucial-oven-386720`
   
-## google batch in latest snakemake 8
-
-sucessfull
-
-`snakemake --jobs 1 calculate_sum --executor googlebatch --googlebatch-project crucial-oven-386720 --googlebatch-region us-central1 --default-storage-provider gcs --default-storage-prefix  gcs://temp-log-snake-oet --storage-gcs-project crucial-oven-386720`
-
-failing
-
-`snakemake --use-conda --jobs 1 try_conda  --executor googlebatch --googlebatch-project crucial-oven-386720 --googlebatch-region us-central1 --default-storage-provider gcs --default-storage-prefix  gcs://temp-log-snake-oet --storage-gcs-project crucial-oven-386720`
-
-![Logo](/batch-use-conda-error.png)
+- Unsuccessful Execution (with Conda):
+- `snakemake --use-conda --jobs 1 try_conda --executor googlebatch --googlebatch-project crucial-oven-386720 --googlebatch-region us-central1 --default-storage-provider gcs --default-storage-prefix gcs://temp-log-snake-oet --storage-gcs-project crucial-oven-386720`
+- Execution Status: ![Error](img/batch-use-conda-error.png)
