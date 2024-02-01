@@ -92,6 +92,7 @@ this command will
 - Create a bucket and upload the input file to it.
 - Use the command `snakemake --kubernetes bucket-fuse --k8s-service-account-name bucket-account --default-remote-prefix bucket-name --default-remote-provider GS -j 1 calculate_sum`.
 - This should get you the results in the bucket.
+- ![Logo](/k8-s7-sucess.png)
 
 ## new version
 
@@ -99,4 +100,16 @@ this command will
 - latest command looks like this
 - `snakemake --executor kubernetes --default-storage-provider gcs --default-storage-prefix  gcs://bucket-name -j 1 calculate_sum --storage-gcs-project stately-forest-407206 --kubernetes-namespace bucket-fuse`
 - results in error Has the pod been delete manually.
+- ![Logo](/k8-latest-error.png)
   
+## google batch in latest snakemake 8
+
+sucessfull
+
+`snakemake --jobs 1 calculate_sum --executor googlebatch --googlebatch-project crucial-oven-386720 --googlebatch-region us-central1 --default-storage-provider gcs --default-storage-prefix  gcs://temp-log-snake-oet --storage-gcs-project crucial-oven-386720`
+
+failing
+
+`snakemake --use-conda --jobs 1 try_conda  --executor googlebatch --googlebatch-project crucial-oven-386720 --googlebatch-region us-central1 --default-storage-provider gcs --default-storage-prefix  gcs://temp-log-snake-oet --storage-gcs-project crucial-oven-386720`
+
+![Logo](/batch-use-conda-error.png)

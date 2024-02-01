@@ -1,4 +1,3 @@
-
 rule calculate_sum:
     input: "input/option.txt"
     output:
