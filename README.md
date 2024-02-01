@@ -1,115 +1,69 @@
+# Project Usage Guide
 
-# Introduction
+This guide provides instructions on how to use the project locally, with Docker, on a VM, and in Kubernetes.
 
-This project is conceived as a testbed for cloud strategy, which will later be used in PyPSA models. Due to the large image size of PyPSA, along with substantial data download times, we are using this to develop a cloud solution that fits PyPSA.
+## Use Locally
 
-# USE LOCALLY
+To run the project locally:
 
-- create env using env.yaml
-- then activate it
-  - `snakemake --cores 1 calculate_sum`
-  - `snakemake --cores 1 prepare_networks`
-  - `snakemake --cores 1 solve_networks`
-- to remove folder and run again
-  - `sudo rm -r results/`
-  - `sudo rm -r prepared_networks/`
+1. Create an environment using `env.yaml`.
+2. Activate the environment.
+3. Execute Snakemake commands:
+    - `snakemake --cores 1 calculate_sum`
+    - `snakemake --cores 1 prepare_networks`
+    - `snakemake --cores 1 solve_networks`
+4. To remove folders and run again:
+    - `sudo rm -r results/`
+    - `sudo rm -r prepared_networks/`
 
-# How To Use With Docker
+## How To Use With Docker
 
-if you have docker installed
+If you have Docker installed:
 
-- `docker build -t demo-pypsa .`
+1. Build the Docker image:
+    - `docker build -t demo-pypsa .`
+2. Run the Docker container:
+    - `docker run --name democontainer -v "$(pwd)"/input:/input -v "$(pwd)"/results:/results --rm demo_pypsa`
+    - This will create a Docker container, run `snakemake --cores 1 calculate_sum`, and remove it after writing result files using bind mounts.
+3. For interactive mode:
+    - `sudo docker run -it --entrypoint /bin/bash demo-pypsa`
+    - It will start a container of this image with Conda activated in it.
+4. For later use in Kubernetes, tag and push the image to a Docker registry. Modify the YAML file in the Kubernetes folder and `solve-tmpl` in the root folder accordingly.
 
-- `docker run --name democontainer -v "$(pwd)"/input:/input -v "$(pwd)"/results:/results --rm demo_pypsa`
+## GCloud Setup
 
-this will create a docker container run `snakemake --cores 1 calculate_sum`  and remove it after writing result files using bindmounts.
+GCloud setup is required to further run this project.
 
-- `sudo docker run -it --entrypoint /bin/bash demo-pypsa`
+## VM Usage
 
-it will start a container of this image with conda activated in it.
+1. Execute the VM runner script:
+    - `bash vm_stuff/runner.sh input-dir output-dir rule-name`
+    - `bash vm_stuff/runner.sh network_config prepared_networks prepare_networks`
+2. This command sequence will:
+    - Create a VM.
+    - Install Docker on it.
+    - Clone our repo (any version is possible).
+    - Build our Docker image from the downloaded repo.
+    - Copy our `input.txt` from the local machine to the VM.
+    - Run a container that uses our input, solves it, and writes results to `network.txt`.
+    - Download results.
+    - Delete the VM.
+3. Images can be used directly, and multiple images can be tested easily using Docker, streamlining development.
 
-if you want to use you image later in kubernetes section tag and push it to docker registry and modify the yaml file in kubernetes folder and solve-tmpl in root folder.
+## Kubernetes
 
-# gcloud setup is needed to further run this project
-
-# VM
-
-- `bash vm_stuff/runner.sh input-dir output-dir rule-name`
-- `bash vm_stuff/runner.sh network_config prepared_networks prepare_networks`
-
-this command will
-
-- create a VM
-- install docker on it
-- we git clones our repo (any version is possible)
-- build our docker image from downloaded repo
-- copy our input.txt from local machine to VM
-- runs a container uses our input then solves it and writes result/network.txt
-- we downloads results
-- delete the VM
-
-- we can also use our images directly.
-- we can run or test multiple images easily using docker which will streamline development.
-
-# Kubernetes
-
-- to run this we have setup a cluster following these instructions[https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver]
-- or get access to our cluster
-- configure kubectl to use GCP cluster
-
-- in k8 solution we will upload data directly to buckets,then use buckets as persistent volume claims.
-
-- `bash kubernetes/executer.sh input-dir output-dir rule-name bucket-name`
-
-- `bash kubernetes/executer.sh network_config prepared_networks prepare_networks different-name-two`
-
-- executor.sh will create a bucket and then upload the input.
-- We use the job-executer.py file to read k8-job-template.yaml, which describes a job.
-- We override the rule for input and output directories, which will be bind-mounted.
-- We send it to solve while we can follow the logs.
-- Once solved, it will download the results.
+1. Set up a cluster as per [Google Cloud Persistent Volumes documentation](https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver) or get access to our cluster.
+2. Configure `kubectl` to use the GCP cluster.
+3. Use `bash kubernetes/executer.sh input-dir output-dir rule-name bucket-name` for running jobs.
+4. `executor.sh` will create a bucket and then upload the input.
+5. Use `bash kubernetes/executer.sh network_config prepared_networks prepare_networks different-name-two` for different configurations.
+6. `job-executer.py` reads `k8-job-template.yaml`, describing a job, overriding rules for input and output directories for bind mounts.
+7. Follow the logs to monitor job execution and download results upon completion.
 
 ## Multiple Jobs
 
-- Once you have run the `prepare_network` rule, you should have a number of files in the `prepared_networks` directory.
-- Execute `bash parallel-jobs.sh`.
-- This script will create a folder named `pre-k8-jobs`.
-- We create multiple YAML files in `pre-k8-jobs` from `k8-solve-job-tmpl` located in the root directory.
-- We apply all of these files to create multiple jobs in Kubernetes in parallel.
-- Use `kubectl get jobs` to view all the jobs.
-- Use `kubectl get pods` to see the status of pods running.
-
-# Kubernetes and Snakemake
-
-## older version
-
-- This example [Snakemake on Azure AKS](https://snakemake.readthedocs.io/en/v7.32.3/executor_tutorial/azure_aks.html) works fine on Kubernetes with an older version of Snakemake (< 8.0).
-- However, I couldn't figure out how to pass environment variables to Snakemake, which in turn gets passed to the pod in the cluster.
-- These environment variables allow the pod to write the results of running the rule to the bucket.
-- I am manually passing the environment variable `GOOGLE_CLOUD_CREDENTIALS` in `sum_script.py` of the `calculate_sum` rule.
-- You will need to make a service account with permissions specified [here](https://snakemake.readthedocs.io/en/v7.32.3/executor_tutorial/azure_aks.html).
-- Once you have granted permissions, download the service account key and add it to the root folder as `key.json`.
-- Create a bucket and upload the input file to it.
-- Use the command `snakemake --kubernetes bucket-fuse --k8s-service-account-name bucket-account --default-remote-prefix bucket-name --default-remote-provider GS -j 1 calculate_sum`.
-- This should get you the results in the bucket.
-- ![Logo](/k8-s7-sucess.png)
-
-## new version
-
-- not runing sucessfully
-- latest command looks like this
-- `snakemake --executor kubernetes --default-storage-provider gcs --default-storage-prefix  gcs://bucket-name -j 1 calculate_sum --storage-gcs-project stately-forest-407206 --kubernetes-namespace bucket-fuse`
-- results in error Has the pod been delete manually.
-- ![Logo](/k8-latest-error.png)
-  
-## google batch in latest snakemake 8
-
-sucessfull
-
-`snakemake --jobs 1 calculate_sum --executor googlebatch --googlebatch-project crucial-oven-386720 --googlebatch-region us-central1 --default-storage-provider gcs --default-storage-prefix  gcs://temp-log-snake-oet --storage-gcs-project crucial-oven-386720`
-
-failing
-
-`snakemake --use-conda --jobs 1 try_conda  --executor googlebatch --googlebatch-project crucial-oven-386720 --googlebatch-region us-central1 --default-storage-provider gcs --default-storage-prefix  gcs://temp-log-snake-oet --storage-gcs-project crucial-oven-386720`
-
-![Logo](/batch-use-conda-error.png)
+1. After running the `prepare_network` rule, you will have multiple files in the `prepared_networks` directory.
+2. Execute `bash parallel-jobs.sh` to create multiple jobs in Kubernetes in parallel.
+3. This script creates a folder named `pre-k8-jobs` and multiple YAML files from `k8-solve-job-tmpl`.
+4. Apply these files to create jobs.
+5. Monitor jobs and pods using `kubectl get jobs` and `kubectl get pods`.
